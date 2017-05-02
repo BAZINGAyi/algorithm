@@ -2,6 +2,8 @@
 
 using namespace std;
 
+#include "math.h"
+
 /* 问题 1 : 输入一个数 n 输出 1 到 n 的全排列
  */
 
@@ -179,6 +181,114 @@ void dfs_sum(int index,int length){
 
 }
 
+
+// 问题5: 在一个 3*4 的格子中，其中 0，0 2，3 位置刨除，在剩下的位置中放入 0 - 9 的数字，要求连续的数字不能相邻
+
+int value[3][4] = {0}, flag_vaule[3][4] = {0};  // value 用来存放放置好的数组，flag_value 用来标示 value 的位置是否能使用
+
+int b[10] = {0}, visit_b[10] = {0};             // b 用来存放生成好的 0 - 9 的数字，visit_b 用来标示 0 - 9 的数字是否被使用
+
+int value_sum = 0;
+
+void init_value(){
+    
+    for(int i = 0; i < 3; i++)
+        
+        for(int j = 0; j < 4; j++)
+            
+            flag_vaule[i][j] = 1;
+    
+    flag_vaule[0][0] = -1;
+    
+    flag_vaule[2][3] = -1;
+
+}
+
+void change(){  //  将一维数组变为二维数组
+    
+    int t=0;
+    
+    for(int i=0;i<3;i++)
+        
+        for(int j=0;j<4;j++)
+        {
+            if(flag_vaule[i][j] == -1)
+                
+                continue;
+            
+            value[i][j]=b[t];
+            
+            t++;
+        }
+
+}
+
+int solve(){
+    
+    change();
+    
+    int direction[8][2] = {{-1,0},{1,0},{0,-1},{0,1},{-1,-1},{1,1},{1,-1},{-1,1}};
+    
+    
+    int t = 1;
+    
+    for(int i = 0 ; i < 3 ; i ++)
+    {
+        for(int j = 0 ; j < 4; j ++)
+        {
+            //判断每个数周围是否满足
+            if(flag_vaule[i][j] == -1)continue;
+            
+            for( int k = 0 ; k < 8 ; k ++)
+            {
+                int x,y;
+                x = i + direction[k][0];
+                y = j + direction[k][1];
+                if(x < 0 || x >= 3 || y < 0 || y >= 4 || flag_vaule[x][y] == -1) continue;
+                
+                if(fabs(value[x][y] - value[i][j]) == 1)
+                    
+                    t = 0;
+            }
+        }
+    }
+    
+    if(t == 1)
+
+        return 1;
+    
+    return 0;
+
+}
+
+void dfs_value(int index){
+
+    if(index == 10){
+    
+        int a = solve();
+        
+        if(a)
+            
+            value_sum++;
+    }else{
+    
+        for(int i = 0; i < 10; i++){
+            
+            if(!visit_b[i]){
+                
+                b[index] = i;
+                
+                visit_b[i] = 1;
+                
+                dfs_value(index + 1);
+                
+                visit_b[i] = 0;
+            }
+         }
+    }
+
+}
+
 int main(int argc, const char * argv[]) {
     
     // 问题 1 :
@@ -215,9 +325,17 @@ int main(int argc, const char * argv[]) {
     
 //    问题 4 :
     
-    dfs_sum(1, 9);
+//    dfs_sum(1, 9);
     
-    cout<<(sum/2);
+ //   cout<<(sum/2);
+    
+ //   问题 5:
+    
+    init_value();
+    
+    dfs_value(0);
+    
+    cout<<value_sum;
     
     return 0;
 }
